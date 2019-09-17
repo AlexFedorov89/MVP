@@ -12,7 +12,7 @@ public class Presenter {
         int newValue = model.getElementValueAtIndex(id) + 1;
         model.setElementValueAtIndex(id, newValue);
         view.setButtonText(id, newValue);
-    }
+    } 
 
     public void onClick(int id) {
         updateNewElementValue(id);
