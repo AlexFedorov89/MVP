@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="geekbrains.ru.lesson1mvc.MainActivity">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Счетчик1" />
+    <Button
+        android:id="@+id/btnCounter1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Количество = 0"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Счетчик2" />
+    <Button
+        android:id="@+id/btnCounter2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Количество = 0"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Счетчик3" />
+    <Button
+        android:id="@+id/btnCounter3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Количество = 0"/>
+</LinearLayout>
