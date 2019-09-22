@@ -19,14 +19,13 @@ import geekbrains.ru.lesson1mvc.R;
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
 
 public class Main2Activity extends AppCompatActivity {
     static String TAG = "MainActivity2";
 
     EditText editText;
     TextView textView;
-    PublishSubject<Long> eventBus;
+    EventBus eventBus;
 
 
     @Override
@@ -46,8 +45,14 @@ public class Main2Activity extends AppCompatActivity {
 
         initViews();
 
+        createEventBus();
+
         btnStartEventBus_AddListener();
         SendDataToEventBus_AddListener();
+    }
+
+    private void createEventBus() {
+        eventBus = new EventBus();
     }
 
     private void initViews() {
@@ -90,12 +95,15 @@ public class Main2Activity extends AppCompatActivity {
 
     private void sendDataToEventBus() {
         // Send user's data to eventBus.
-        Main2Activity.this.eventBus.onNext(100L);
+        eventBus.sendData(100L);
     }
 
     private void startEventBus() {
-        Toast.makeText(Main2Activity.this, "EventBus started!", Toast.LENGTH_SHORT).show();
-        Observable<Long> observable = Observable
+        Observable<Long> observable1 = Observable
+                .interval(1, TimeUnit.SECONDS)
+                .take(5);
+
+        Observable<Long> observable2 = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .take(5);
 
@@ -141,11 +149,12 @@ public class Main2Activity extends AppCompatActivity {
             }
         };
 
-        eventBus = PublishSubject.create();
+        eventBus.subscribeObservable(observable1);
+        eventBus.subscribeObservable(observable2);
 
-        observable.subscribe(eventBus);
+        Toast.makeText(Main2Activity.this, "EventBus started!", Toast.LENGTH_SHORT).show();
 
-        eventBus.subscribe(observer1);
-        eventBus.subscribe(observer2);
+        eventBus.subscribeObserver(observer1);
+        eventBus.subscribeObserver(observer2);
     }
 }
