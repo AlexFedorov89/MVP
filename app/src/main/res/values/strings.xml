@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">Lesson1.MVC</string>
+    <string name="app_name">Popular libraries</string>
+    <string name="start_eventbus">Start EventBus</string>
+    <string name="send_user_data_to_eventbus">Send user data to EventBus</string>
+    <string name="input_text_here">Input text here ...</string>
 </resources>

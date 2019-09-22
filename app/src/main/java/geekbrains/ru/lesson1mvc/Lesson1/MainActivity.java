@@ -1,4 +1,4 @@
-package geekbrains.ru.lesson1mvc;
+package geekbrains.ru.lesson1mvc.Lesson1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
+
+import geekbrains.ru.lesson1mvc.Lesson1.MainView;
+import geekbrains.ru.lesson1mvc.Lesson1.Presenter;
+import geekbrains.ru.lesson1mvc.R;
 
 
 public class MainActivity extends AppCompatActivity implements MainView, View.OnClickListener {
@@ -20,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         setContentView(R.layout.activity_main);
         initViews();
         initPresenter();
-    } 
+    }
 
     private void initPresenter() {
         presenter = new Presenter(this);

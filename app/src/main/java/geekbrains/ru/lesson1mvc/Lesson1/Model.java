@@ -1,4 +1,4 @@
-package geekbrains.ru.lesson1mvc;
+package geekbrains.ru.lesson1mvc.Lesson1;
 
 import androidx.annotation.NonNull;
 
@@ -12,7 +12,7 @@ public class Model {
         if (!storage.containsKey(index)) {
             storage.put(index, 0);
         }
- 
+
         return storage.get(index);
     }
 

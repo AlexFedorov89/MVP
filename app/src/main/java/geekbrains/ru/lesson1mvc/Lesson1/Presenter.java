@@ -1,4 +1,4 @@
-package geekbrains.ru.lesson1mvc;
+package geekbrains.ru.lesson1mvc.Lesson1;
 
 public class Presenter {
     Model model = new Model();
@@ -12,7 +12,7 @@ public class Presenter {
         int newValue = model.getElementValueAtIndex(id) + 1;
         model.setElementValueAtIndex(id, newValue);
         view.setButtonText(id, newValue);
-    } 
+    }
 
     public void onClick(int id) {
         updateNewElementValue(id);
