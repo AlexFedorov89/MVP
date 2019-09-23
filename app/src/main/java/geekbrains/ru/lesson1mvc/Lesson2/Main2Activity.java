@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import geekbrains.ru.lesson1mvc.R;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
@@ -26,6 +28,9 @@ public class Main2Activity extends AppCompatActivity {
     EditText editText;
     TextView textView;
     EventBus eventBus;
+
+    Observer<String> onTextChange;
+    ObservableEmitter<String> emitter;
 
 
     @Override
@@ -44,11 +49,38 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
 
         initViews();
-
+        initTextReact();
         createEventBus();
 
         btnStartEventBus_AddListener();
         SendDataToEventBus_AddListener();
+    }
+
+    private void initTextReact() {
+        onTextChange = new Observer<String>() {
+            @Override
+            public void onComplete() {}
+
+            @Override
+            public void onError(Throwable e) {}
+
+            @Override
+            public void onSubscribe(Disposable d) {}
+
+            @Override
+            public void onNext(String s) {
+                textView.setText(s);
+            }
+        };
+
+        Observable<String> stringObservable = Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> emitter) {
+                Main2Activity.this.emitter = emitter;
+            }
+        });
+
+        stringObservable.subscribe(onTextChange);
     }
 
     private void createEventBus() {
@@ -66,7 +98,9 @@ public class Main2Activity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                textView.setText(s);
+                if (emitter != null) {
+                    emitter.onNext(s.toString());
+                }
             }
 
             @Override
