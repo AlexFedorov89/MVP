@@ -21,6 +21,7 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 
 public class Main2Activity extends AppCompatActivity {
     static String TAG = "MainActivity2";
@@ -29,9 +30,8 @@ public class Main2Activity extends AppCompatActivity {
     TextView textView;
     EventBus eventBus;
 
-    Observer<String> onTextChange;
-    ObservableEmitter<String> emitter;
-
+    Observable<String> stringObservable;
+    Disposable disposable;
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
@@ -56,16 +56,38 @@ public class Main2Activity extends AppCompatActivity {
         SendDataToEventBus_AddListener();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        disposable = stringObservable.subscribe(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                textView.setText(s);
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        disposable.dispose();
+    }
+
     private void initTextReact() {
-        onTextChange = new Observer<String>() {
+        Observer<String> onTextChange = new Observer<String>() {
             @Override
-            public void onComplete() {}
+            public void onComplete() {
+            }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onError(Throwable e) {
+            }
 
             @Override
-            public void onSubscribe(Disposable d) {}
+            public void onSubscribe(Disposable d) {
+            }
 
             @Override
             public void onNext(String s) {
@@ -73,10 +95,23 @@ public class Main2Activity extends AppCompatActivity {
             }
         };
 
-        Observable<String> stringObservable = Observable.create(new ObservableOnSubscribe<String>() {
+        stringObservable = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void subscribe(ObservableEmitter<String> emitter) {
-                Main2Activity.this.emitter = emitter;
+            public void subscribe(final ObservableEmitter<String> emitter) {
+                editText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+                        emitter.onNext(s.toString());
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                    }
+                });
             }
         });
 
@@ -90,23 +125,6 @@ public class Main2Activity extends AppCompatActivity {
     private void initViews() {
         editText = findViewById(R.id.editTextLsn2);
         textView = findViewById(R.id.textViewLsn2);
-
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                if (emitter != null) {
-                    emitter.onNext(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
     }
 
     private void SendDataToEventBus_AddListener() {
@@ -129,7 +147,9 @@ public class Main2Activity extends AppCompatActivity {
 
     private void sendDataToEventBus() {
         // Send user's data to eventBus.
-        eventBus.sendData(100L);
+        if (eventBus != null) {
+            eventBus.sendData(100L);
+        }
     }
 
     private void startEventBus() {
