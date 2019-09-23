@@ -8,7 +8,6 @@ import android.os.PersistableBundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,11 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 import geekbrains.ru.lesson1mvc.R;
 import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 public class Main2Activity extends AppCompatActivity {
     static String TAG = "MainActivity2";
@@ -60,12 +56,7 @@ public class Main2Activity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        disposable = stringObservable.subscribe(new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                textView.setText(s);
-            }
-        });
+        disposable = stringObservable.subscribe(s -> textView.setText(s));
     }
 
     @Override
@@ -95,25 +86,20 @@ public class Main2Activity extends AppCompatActivity {
             }
         };
 
-        stringObservable = Observable.create(new ObservableOnSubscribe<String>() {
+        stringObservable = Observable.create(emitter -> editText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void subscribe(final ObservableEmitter<String> emitter) {
-                editText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int i, int i1, int i2) {
-                        emitter.onNext(s.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable editable) {
-                    }
-                });
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
-        });
+
+            @Override
+            public void onTextChanged(CharSequence s, int i, int i1, int i2) {
+                emitter.onNext(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        }));
 
         stringObservable.subscribe(onTextChange);
     }
@@ -128,21 +114,11 @@ public class Main2Activity extends AppCompatActivity {
     }
 
     private void SendDataToEventBus_AddListener() {
-        findViewById(R.id.btnSendDataToEventBus).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendDataToEventBus();
-            }
-        });
+        findViewById(R.id.btnSendDataToEventBus).setOnClickListener(view -> sendDataToEventBus());
     }
 
     private void btnStartEventBus_AddListener() {
-        findViewById(R.id.btnStartEventBus).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startEventBus();
-            }
-        });
+        findViewById(R.id.btnStartEventBus).setOnClickListener(view -> startEventBus());
     }
 
     private void sendDataToEventBus() {
