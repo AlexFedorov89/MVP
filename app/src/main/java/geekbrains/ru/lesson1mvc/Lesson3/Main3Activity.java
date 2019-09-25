@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import geekbrains.ru.lesson1mvc.R;
 import io.reactivex.Observable;
@@ -118,7 +119,7 @@ public class Main3Activity extends AppCompatActivity {
                 Observable<String> observable = Observable.create((ObservableOnSubscribe<String>) emitter -> {
                     convertImg(selectedPhotoUri, emitter);
 
-                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                }).debounce(10_0000, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
 
                 disposable = observable.subscribeWith(disposableObserver);
             }
@@ -141,7 +142,11 @@ public class Main3Activity extends AppCompatActivity {
     }
 
     private void convertImg(Uri selectedPhotoUri, ObservableEmitter<String> emitter) throws InterruptedException {
-        Thread.sleep(10_000);
+        try {
+            Thread.sleep(20_000);
+        } catch (InterruptedException e) {
+            return;
+        }
 
         try {
             //  read.
@@ -160,23 +165,24 @@ public class Main3Activity extends AppCompatActivity {
         }
 
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-        Integer counter = 0;
         File file = new File(path, "Result_" + new Date().getTime() + ".png");
+        if (!emitter.isDisposed()) {
+            try (OutputStream fOut = new FileOutputStream(file)) {
+                if (!file.exists()) {
+                    // Create blank file.
+                    file.createNewFile();
+                }
+                // Convert to PNG format.
 
-        try (OutputStream fOut = new FileOutputStream(file)) {
-            if (!file.exists()) {
-                // Create blank file.
-                file.createNewFile();
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+
+
+            } catch (Exception e) {
+                emitter.onError(e);
+
+                return;
             }
-            // Convert to PNG format.
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-
-        } catch (Exception e) {
-            emitter.onError(e);
-
-            return;
         }
-
         emitter.onComplete();
     }
 
