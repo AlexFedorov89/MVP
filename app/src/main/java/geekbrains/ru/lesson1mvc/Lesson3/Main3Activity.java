@@ -147,26 +147,26 @@ public class Main3Activity extends AppCompatActivity {
         } catch (InterruptedException e) {
             return;
         }
-
-        try {
-            //  read.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), selectedPhotoUri));
-            } else {
-                bmp = (MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), selectedPhotoUri));
-            }
-        } catch (IOException e) {
-
-            Log.d(TAG, "Error. Get data from image.");
-
-            emitter.onError(e);
-
-            return;
-        }
-
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-        File file = new File(path, "Result_" + new Date().getTime() + ".png");
         if (!emitter.isDisposed()) {
+            try {
+                //  read.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), selectedPhotoUri));
+                } else {
+                    bmp = (MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), selectedPhotoUri));
+                }
+            } catch (IOException e) {
+
+                Log.d(TAG, "Error. Get data from image.");
+
+                emitter.onError(e);
+
+                return;
+            }
+
+            String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+            File file = new File(path, "Result_" + new Date().getTime() + ".png");
+
             try (OutputStream fOut = new FileOutputStream(file)) {
                 if (!file.exists()) {
                     // Create blank file.
