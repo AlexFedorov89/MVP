@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -26,7 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 import geekbrains.ru.lesson1mvc.R;
 import io.reactivex.Observable;
@@ -39,8 +40,14 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Main3Activity extends AppCompatActivity {
 
-    static final int REQUEST_PICK_UP_FILE = 777;
     static final String TAG = "MainActivity3";
+    static final int REQUEST_PICK_UP_FILE = 777;
+    public static final int COUNT_MILLIS_TO_WAIT = 20_000;
+
+    String NEED_PERMISSIONS;
+    String SELECT_JPG;
+    String ERROR_MSG;
+    String COMPLETE_MSG;
 
     AlertDialog alert;
     Bitmap bmp;
@@ -52,6 +59,7 @@ public class Main3Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
 
+        initConstants();
         initViews();
     }
 
@@ -67,13 +75,13 @@ public class Main3Activity extends AppCompatActivity {
             @Override
             public void onError(Throwable e) {
                 if (alert.isShowing()) alert.cancel();
-                Toast.makeText(Main3Activity.this, "Error!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Main3Activity.this, ERROR_MSG, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onComplete() {
                 if (alert.isShowing()) alert.cancel();
-                Toast.makeText(Main3Activity.this, "Got it!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Main3Activity.this, COMPLETE_MSG, Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -91,6 +99,15 @@ public class Main3Activity extends AppCompatActivity {
         super.onPause();
     }
 
+    private void initConstants() {
+        Resources resources = getResources();
+
+        NEED_PERMISSIONS = resources.getString(R.string.msgNeedPermissions);
+        SELECT_JPG = resources.getString(R.string.SelectJPG);
+        ERROR_MSG = resources.getString(R.string.errorMsg);
+        COMPLETE_MSG = resources.getString(R.string.complete_msg);
+    }
+
     private void initViews() {
         findViewById(R.id.btnStop).setOnClickListener(view -> {
             if (!disposable.isDisposed()) {
@@ -103,10 +120,10 @@ public class Main3Activity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setType("image/jpeg");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select JPG"), REQUEST_PICK_UP_FILE);
+                startActivityForResult(Intent.createChooser(intent, SELECT_JPG), REQUEST_PICK_UP_FILE);
             });
         } else {
-            Toast.makeText(this, "Can't convert without permissions!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, NEED_PERMISSIONS, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -114,12 +131,12 @@ public class Main3Activity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_PICK_UP_FILE) {
-                Uri selectedPhotoUri = data.getData();
+                Uri selectedPhotoUri = Objects.requireNonNull(data).getData();
 
-                Observable<String> observable = Observable.create((ObservableOnSubscribe<String>) emitter -> {
-                    convertImg(selectedPhotoUri, emitter);
-
-                }).debounce(10_0000, TimeUnit.MILLISECONDS).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+                Observable<String> observable = Observable
+                        .create((ObservableOnSubscribe<String>) emitter -> convertImg(selectedPhotoUri, emitter))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread());
 
                 disposable = observable.subscribeWith(disposableObserver);
             }
@@ -141,15 +158,16 @@ public class Main3Activity extends AppCompatActivity {
         alert.show();
     }
 
-    private void convertImg(Uri selectedPhotoUri, ObservableEmitter<String> emitter) throws InterruptedException {
+    private void convertImg(Uri selectedPhotoUri, ObservableEmitter<String> emitter) {
         try {
-            Thread.sleep(20_000);
+            Thread.sleep(COUNT_MILLIS_TO_WAIT);
         } catch (InterruptedException e) {
             return;
         }
         if (!emitter.isDisposed()) {
             try {
                 //  read.
+                // API >= 28 - getBitmap is deprecated.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     bmp = ImageDecoder.decodeBitmap(ImageDecoder.createSource(getContentResolver(), selectedPhotoUri));
                 } else {
@@ -175,8 +193,6 @@ public class Main3Activity extends AppCompatActivity {
                 // Convert to PNG format.
 
                 bmp.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-
-
             } catch (Exception e) {
                 emitter.onError(e);
 

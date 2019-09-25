@@ -3,4 +3,8 @@
     <string name="start_eventbus">Start EventBus</string>
     <string name="send_user_data_to_eventbus">Send user data to EventBus</string>
     <string name="input_text_here">Input text here ...</string>
+    <string name="msgNeedPermissions">Can\'t convert without permissions!</string>
+    <string name="SelectJPG">Select JPG</string>
+    <string name="errorMsg">Error!</string>
+    <string name="complete_msg">Got it!</string>
 </resources>
