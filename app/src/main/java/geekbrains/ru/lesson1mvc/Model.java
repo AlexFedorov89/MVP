@@ -12,7 +12,7 @@ public class Model {
         if (!storage.containsKey(index)) {
             storage.put(index, 0);
         }
-
+ 
         return storage.get(index);
     }
 

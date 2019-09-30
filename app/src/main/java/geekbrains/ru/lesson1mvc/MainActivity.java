@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity implements MainView, View.On
         setContentView(R.layout.activity_main);
         initViews();
         initPresenter();
-    }
+    } 
 
     private void initPresenter() {
         presenter = new Presenter(this);
